@@ -1,11 +1,9 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 
-import {Chat} from "./components/Chat";
 import Chats from "./pages/Chats";
 import {Login} from "./components/Login";
 import {Navbar} from "./components/Navbar";
 
-// @ts-ignore
 import {AuthContextProvider} from "./components/contexts/AuthContext";
 import {NotificationContextProvider} from "./components/contexts/NotificationContext";
 import {ProtectedRoute} from "./components/ProtectedRoute";
