@@ -224,7 +224,7 @@ export function Chat(
     return (
         <>
             {
-                conversation && (
+                conversation?.name && (
                     <div className="p-3 bg-gray-200">
                         <div className="flex flex-row">
                             <img src={"http://localhost:8000" + conversation.other_user?.display_photo}

@@ -1,6 +1,9 @@
-export default function Feeds() {
+import {useContext} from "react";
+import {AuthContext} from "../components/contexts/AuthContext";
 
+export default function Feeds() {
+    const {user} = useContext(AuthContext)
     return (
-        <h1 className="header">feeds page</h1>
+        <h1 className="header">{user?.username} feeds page</h1>
     )
 }

@@ -23,7 +23,6 @@ export function Conversations({active_conversation, handleConversationChange, la
     const [users, setUsers] = useState<UserModel[]>([]);
 
     useEffect(() => {
-
         async function fetchConversations() {
             const res = await fetch("http://127.0.0.1:8000/api/chats", {
                 headers: {
@@ -33,6 +32,7 @@ export function Conversations({active_conversation, handleConversationChange, la
             const data = await res.json();
             setConversations(data);
         }
+
         fetchConversations().catch(err => console.log(err));
 
         async function fetchUsers() {
@@ -45,6 +45,7 @@ export function Conversations({active_conversation, handleConversationChange, la
 
             setUsers(data);
         }
+
         fetchUsers().catch(err => console.log(err));
 
     }, [user]);
@@ -70,7 +71,8 @@ export function Conversations({active_conversation, handleConversationChange, la
         const response = await axios.post(
             `http://127.0.0.1:8000/api/chats/add`,
             {username},
-            { headers: { Authorization: `Token ${user?.token}`}
+            {
+                headers: {Authorization: `Token ${user?.token}`}
             });
 
         if (response.data.name) {
@@ -84,93 +86,87 @@ export function Conversations({active_conversation, handleConversationChange, la
     }
 
     return (
-        <div className="">
+        <>
             {active_conversation.name && (
-                <div>
-                    <button onClick={() => setOpen(true)} className=" bg-green-600 px-3 py-1 rounded m-2 w-fit">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                             className="w-5 h-5 text-white">
-                            <path
-                                d="M11 5a3 3 0 11-6 0 3 3 0 016 0zM2.615 16.428a1.224 1.224 0 01-.569-1.175 6.002 6.002 0 0111.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 018 18a9.953 9.953 0 01-5.385-1.572zM16.25 5.75a.75.75 0 00-1.5 0v2h-2a.75.75 0 000 1.5h2v2a.75.75 0 001.5 0v-2h2a.75.75 0 000-1.5h-2v-2z"/>
-                        </svg>
-                    </button>
+                <div className="p-1 w-full">
+                    <div className="flex justify-between">
+                        <button onClick={() => setOpen(true)}
+                                className="border-2 border-green-700 px-3 py-1 rounded ml-2 h-14 w-full flex justify-center text-green-700 items-center hover:bg-green-700 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                 className="w-7 h-7">
+                                <path
+                                    d="M11 5a3 3 0 11-6 0 3 3 0 016 0zM2.615 16.428a1.224 1.224 0 01-.569-1.175 6.002 6.002 0 0111.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 018 18a9.953 9.953 0 01-5.385-1.572zM16.25 5.75a.75.75 0 00-1.5 0v2h-2a.75.75 0 000 1.5h2v2a.75.75 0 001.5 0v-2h2a.75.75 0 000-1.5h-2v-2z"/>
+                            </svg>
+                        </button>
+                        <button onClick={() => alert("group")}
+                                className="border-2 border-blue-700 px-3 py-1 rounded ml-2  h-14 w-full flex justify-center text-blue-700 items-center hover:bg-blue-700 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke="currentColor" className="w-7 h-7">
+                                <path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+                            </svg>
 
-                    <div>
-                        <Modal title="Friends" open={open} onClose={() => setOpen(false)}>
-                            <div>
-                                {users.map((u: UserModel) => (
-                                    <div key={u.username} className=" flex h-fit p-2 hover:cursor-pointer hover:bg-gray-200" onClick={() => createConversation(u.username)}>
-                                        <img src={"http://localhost:8000" + u.display_photo}
-                                             className="rounded-full mr-3" width="35" height="35" alt=""/>
-                                        <div className="text-xl">{u.username}</div>
-                                    </div>
-                                    ))}
-                            </div>
-                        </Modal>
+                        </button>
                     </div>
 
+                    <Modal title="Friends" open={open} onClose={() => setOpen(false)}>
+                        <div>
+                            {users.map((u: UserModel) => (
+                                <div key={u.username} className=" flex h-fit p-2 hover:cursor-pointer hover:bg-gray-200"
+                                     onClick={() => createConversation(u.username)}>
+                                    <img src={"http://localhost:8000" + u.display_photo}
+                                         className="rounded-full mr-3" width="35" height="35" alt=""/>
+                                    <div className="text-xl">{u.username}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </Modal>
                 </div>
             )}
-
-            {conversations && conversations
-                .map((conversation, idx) => (
-                    <div className={
-                        classNames("border border-gray-100 w-full p-2 hover:bg-gray-300 hover:cursor-pointer",
-                            conversation.id === active_conversation.id ? "dark:border-l-gray-800 border-l-2" : " ")}
-                         key={conversation.id}
-                         onClick={() => handleConversationChange(conversation)}>
-                        <div className="flex">
-                            <div className="pt-1">
-                                <img src={"http://localhost:8000" + conversation.other_user?.display_photo}
-                                     className="rounded-full" width="50" height="50" alt=""/>
-                            </div>
-                            <div className="flex flex-col w-10/12">
-                                <div className="pl-2">
-                                    <h3 className="text-xl font-semibold text-gray-800">{conversation.other_user?.username}
-                                        {
-                                            conversationsUnreadCounts[idx]?.count > 0 && (
-                                                <span
-                                                    className="ml-2 inline-flex float-right items-center justify-center h-6 w-6 rounded-full dark:bg-gray-800">
+            <div className="overflow-y-auto h-[28rem]">
+                {conversations && conversations
+                    .map((conversation, idx) => (
+                        <div className={
+                            classNames("border border-gray-100 w-full p-2 hover:bg-gray-100 hover:cursor-pointer",
+                                conversation.id === active_conversation.id ? "dark:border-l-gray-800 border-l-2" : " ")}
+                             key={conversation.id}
+                             onClick={() => handleConversationChange(conversation)}>
+                            <div className="flex">
+                                <div className="pt-1">
+                                    <img src={"http://localhost:8000" + conversation.other_user?.display_photo}
+                                         className="rounded-full" width="50" height="50" alt=""/>
+                                </div>
+                                <div className="flex flex-col w-10/12">
+                                    <div className="pl-2">
+                                        <h3 className="text-xl font-semibold text-gray-800">{conversation.other_user?.username}
+                                            {
+                                                conversationsUnreadCounts[idx]?.count > 0 && (
+                                                    <span
+                                                        className="ml-2 inline-flex float-right items-center justify-center h-6 w-6 rounded-full dark:bg-gray-800">
                                                 <span
                                                     className="text-xs font-semibold leading-none text-white">{conversationsUnreadCounts[idx]?.count}</span>
                                             </span>
-                                            )
-                                        }
-                                    </h3>
-                                </div>
-                                <div className="flex pl-2">
-                                    <div className="mt-1 mr-2">
-                                        {lastMessages[idx]?.message !== null && lastMessages[idx]?.message.sender.username === user?.username ? (
-                                            <span className="text-gray-700 text-sm w-fit justify-normal">{lastMessages[idx].message.state === "sent" ?
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                     fill="currentColor" className="w-4 h-4 text-gray-400">
-                                                    <path
-                                                        d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z"/>
-                                                    <path
-                                                        d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z"/>
-                                                </svg>
-                                                :
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                     fill="currentColor" className="w-4 h-4 text-blue-600">
-                                                    <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
-                                                    <path fillRule="evenodd"
-                                                          d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                                          clipRule="evenodd"/>
-                                                </svg>
+                                                )
                                             }
-                                        </span>
-                                        ) : (<></>)}
+                                        </h3>
                                     </div>
-                                    <div className="flex justify-between w-full">
-                                        <p className="text-gray-700 text-sm truncate">{lastMessages[idx]?.message?.content}</p>
-                                        <p className="text-gray-700 text-sm">{formatMessageTimestamp(lastMessages[idx]?.message?.created_at)}</p>
+                                    <div className="flex pl-2">
+                                        <div className="flex justify-between w-full">
+                                            <p
+                                                className={
+                                                    lastMessages[idx]?.message?.state === "sent" && lastMessages[idx]?.message?.sender.username !== user?.username ?
+                                                        `text-gray-700 text-sm w-40 truncate font-semibold` : `text-gray-700 text-sm w-40 truncate`}
+                                            >{lastMessages[idx]?.message?.content}</p>
+                                            <p className="text-gray-700 text-sm">{formatMessageTimestamp(lastMessages[idx]?.message?.created_at)}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-        </div>
+                    ))}
+            </div>
+        </>
+
     );
 
 }

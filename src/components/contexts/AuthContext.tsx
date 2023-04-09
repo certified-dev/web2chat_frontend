@@ -5,6 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {UserModel} from "../models/User";
 import authHeader from "../services/AuthHeaders";
 import AuthService from "../services/AuthService";
+import {ConversationModel} from "../models/Conversation";
 
 const DefaultProps = {
     login: () => null,
@@ -35,9 +36,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     }
 
     function logout() {
-        AuthService.logout();
+        AuthService.logout(user?.token);
         setUser(null);
         navigate("/login");
+        localStorage.removeItem("user");
+        localStorage.removeItem("conversation");
     }
 
     async function signup(firstName: string, lastName: string, email: string, username: string, password: string) {

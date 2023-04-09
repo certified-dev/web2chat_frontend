@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { UserModel } from "../models/User";
+import {UserModel} from "../models/User";
 
 class AuthService {
     setUserInLocalStorage(data: UserModel) {
@@ -10,7 +10,13 @@ class AuthService {
     }
 
     async signup(first_name: string, last_name: string, email: string, username: string, password: string): Promise<UserModel> {
-        const response = await axios.post("http://127.0.0.1:8000/api/user/add", { first_name, last_name, email, username, password });
+        const response = await axios.post("http://127.0.0.1:8000/api/user/add", {
+            first_name,
+            last_name,
+            email,
+            username,
+            password
+        });
         if (!response.data.token) {
             return response.data;
         }
@@ -19,7 +25,7 @@ class AuthService {
     }
 
     async login(username: string, password: string): Promise<UserModel> {
-        const response = await axios.post("http://127.0.0.1:8000/auth-token/", { username, password });
+        const response = await axios.post("http://127.0.0.1:8000/auth-token/", {username, password});
         if (!response.data.token) {
             return response.data;
         }
@@ -27,8 +33,15 @@ class AuthService {
         return response.data;
     }
 
-    logout() {
-        localStorage.removeItem("user");
+    async logout(user_token: string) {
+        const id = JSON.parse(localStorage.getItem("conversation")!).id;
+        await axios.post("http://127.0.0.1:8000/api/user/logout",
+            {id},{
+                headers: {
+                    Authorization: `Token ${user_token}`
+                }
+            }
+        );
     }
 
     getCurrentUser() {

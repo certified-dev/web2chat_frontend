@@ -37,9 +37,19 @@ export default function App() {
                         </ProtectedRoute>
                     }/>
 
-                    <Route path="login" element={<Login />}/>
-                    <Route path="signup" element={<SignUp />}/>
+
                 </Route>
+
+                <Route path="login" element={
+                    <AuthContextProvider>
+                       <Login />
+                    </ AuthContextProvider>
+                }/>
+                <Route path="signup" element={
+                    <AuthContextProvider>
+                        <SignUp />
+                    </ AuthContextProvider>
+                }/>
             </Routes>
         </BrowserRouter>
     );
