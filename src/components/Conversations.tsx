@@ -111,7 +111,7 @@ export function Conversations({active_conversation, handleConversationChange, la
             setGroupsOpen(false)
             setConversations(data)
             handleConversationChange(response.data)
-
+            groupNameRef.current.value = "";
         }
     }
 

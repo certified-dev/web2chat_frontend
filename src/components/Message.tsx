@@ -26,7 +26,7 @@ export function Message({message, lastItemUser, conv_type}: { message: MessageMo
                 )}
             >
                 <div>
-                    {conv_type === "group" && (<div className={classNames("text-xs mt-1 text-gray-700 font-bold", message.sender.username !== user!.username ? "ml-14" : "")}>
+                    {conv_type === "group" && (<div className={classNames("text-xs mt-1 text-gray-700 font-bold", message.sender.username !== user!.username ? "mb-1.5" : "")}>
                         {message.sender.username === user!.username ? "You": message.sender.username}
                     </div>)}
                     <div

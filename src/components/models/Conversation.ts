@@ -11,5 +11,6 @@ export interface ConversationModel {
     last_message: MessageModel;
     created_at: string;
     updated_at: string;
+    users_count: number;
 
 }

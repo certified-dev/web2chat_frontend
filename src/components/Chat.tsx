@@ -244,7 +244,7 @@ export function Chat(
                                             {participants.includes(conversation.other_user?.username) ? " online" : " offline"}
                                         </span> )
                                 }
-                                {conversation.type === "group" && (<span className="text-semibold text-gray-500">{participants.length} users online</span>)
+                                {conversation.type === "group" && (<span className="text-semibold text-gray-500">{participants.length}/{conversation.users_count} users online</span>)
                                 }
                             </div>
                         </div>
