@@ -19,10 +19,10 @@ export function Login() {
             setSubmitting(true);
             const { username, password } = values;
             const res = await login(username, password);
-
             if (res.error || res.data) {
                 if (res.data && res.data.detail) {
                     setError(res.data.detail);
+
                 }
             } else {
                 navigate("/");
@@ -48,7 +48,11 @@ export function Login() {
                 </div>
                 <div className="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
                     <form onSubmit={formik.handleSubmit}>
-                        {error && <div>{JSON.stringify(error)}</div>}
+                        {error &&
+                            <div>
+                              {JSON.stringify(error)}
+                            </div>
+                        }
                         <div className="px-5 py-7">
                             {/*<label className="font-semibold text-sm text-gray-600 pb-1 block">Username</label>*/}
                             <input

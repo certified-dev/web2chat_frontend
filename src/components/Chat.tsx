@@ -4,17 +4,13 @@ import {AuthContext} from "./contexts/AuthContext";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {useHotkeys} from "react-hotkeys-hook";
 
-
 import {Message} from "./Message";
 import {ChatLoader} from "./ChatLoader";
-import {MessageModel} from "./models/Message";
+import {MessageModel, LastMessageModel} from "./models/Message";
 import {ConversationModel} from "./models/Conversation";
 
-
-
 export function Chat(
-    // @ts-ignore
-    {conversation, lastMessages, setLastMessages} : {conversation: ConversationModel, lastMessages: LastMessageModelMessageModel[], setLastMessages: any}
+    {conversation, lastMessages, setLastMessages} : {conversation: ConversationModel, lastMessages: LastMessageModel[], setLastMessages: any}
     ) {
 
     const [welcomeMessage, setWelcomeMessage] = useState("");
@@ -22,7 +18,6 @@ export function Chat(
     const [userMessages, setUserMessages] = useState<MessageModel[]>([]);
     const [message, setMessage] = useState("");
     const [participants, setParticipants] = useState<string[]>([]);
-
 
     const [page, setPage] = useState(2);
     const [hasMoreMessages, setHasMoreMessages] = useState(false);
@@ -33,16 +28,19 @@ export function Chat(
 
     const {user} = useContext(AuthContext);
 
-
     useEffect(() => {
         setUserMessages(
             messageHistory.filter((message) => message.sender?.username === user?.username)
         )
     }, [messageHistory, user?.username])
 
+    const socketUrl = conversation.type === "personal" ?
+        `ws://127.0.0.1:8000/ws/chat/${conversation.other_user?.username}/`
+        : `ws://127.0.0.1:8000/ws/chat/room/${conversation.name}/`
 
     const {readyState, sendJsonMessage} = useWebSocket(
-        user ? `ws://127.0.0.1:8000/ws/chat/${conversation.other_user?.username}/` : null, {
+
+        user ? socketUrl : null, {
             queryParams: {
                 token: user ? user.token : "",
             },
@@ -127,7 +125,7 @@ export function Chat(
             handleSubmit();
         },
         {
-            enableOnFormTags : ['INPUT']
+            enableOnFormTags : ['TEXTAREA']
         }, []
     );
 
@@ -227,15 +225,26 @@ export function Chat(
                 conversation?.name && (
                     <div className="p-3 bg-gray-200">
                         <div className="flex flex-row">
-                            <img src={"http://localhost:8000" + conversation.other_user?.display_photo}
+                            <img src={conversation.type === "personal" ? `http://localhost:8000${conversation.other_user?.display_photo}` : `${conversation.group_image}`}
                                  className="rounded-full mr-2" width="50" height="50" alt=""/>
                             <div className="flex flex-col">
-                                <h3 className="text-2xl font-semibold text-gray-900">
-                                    {conversation.other_user?.username}
+                                <h3 className="text-2xl font-semibold text-gray-900 flex">
+                                    {conversation.type === "personal" ? conversation.other_user?.username : conversation.name}
+                                    {conversation.group_type === "private" && (<span className="ml-2 mt-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                        </svg>
+                                    </span>)}
                                 </h3>
-                                {
-                                    otherTyping ? <p className="truncate italic text-sm text-green-600">typing...</p> :
-                                        <span className="text-sm italic text-gray-500"> {participants.includes(conversation.other_user?.username) ? " online" : " offline"}</span>
+                                {conversation.type === "personal" && ( otherTyping ? <span className="whitespace-nowrap rounded-full px-2 py-1 text-center align-baseline text-sm font-semibold leading-none text-white bg-blue-600 w-fit">typing...</span> :
+                                        <span
+                                            className={participants.includes(conversation.other_user?.username) ?
+                                                "whitespace-nowrap rounded-full px-2 py-1 text-center align-baseline text-sm font-semibold leading-none text-white bg-green-600 w-fit"
+                                                : "whitespace-nowrap rounded-full px-2 py-1 text-center align-baseline text-sm font-semibold leading-none text-white bg-gray-400 w-fit"}>
+                                            {participants.includes(conversation.other_user?.username) ? " online" : " offline"}
+                                        </span> )
+                                }
+                                {conversation.type === "group" && (<span className="text-semibold text-gray-500">{participants.length} users online</span>)
                                 }
                             </div>
                         </div>
@@ -244,7 +253,7 @@ export function Chat(
             }
             <div
                 id="scrollableDiv"
-                className="h-[23rem] flex flex-col-reverse w-full border border-gray-200 overflow-y-auto p-4"
+                className="h-[23rem] flex flex-col-reverse w-full border border-gray-200 overflow-y-auto p-2"
             >
                 <div>
                     {/* Put the scroll bar always on the bottom */}
@@ -262,6 +271,7 @@ export function Chat(
                                 <Message key={message.id}
                                          message={message}
                                          lastItemUser={message === userMessages[0] && message.sender.username === user?.username}
+                                         conv_type={conversation.type}
                                 />
                             ))
                         }
@@ -269,17 +279,15 @@ export function Chat(
                 </div>
             </div>
             <div className="flex w-full items-center justify-between border border-gray-200 p-3">
-                <input
-                    type="text"
+                <textarea
                     placeholder="Message"
                     className="block w-full rounded-full bg-gray-100 py-2 outline-none focus:text-gray-700"
                     name="message"
                     value={message}
                     onChange={handleChangeMessage}
-                    required
                     ref={inputReference}
                     maxLength={511}
-                />
+                ></textarea>
                 <button className="ml-3 bg-gray-300 px-3 py-2" onClick={handleSubmit}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                         <path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />

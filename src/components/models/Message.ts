@@ -6,7 +6,7 @@ export interface MessageModel {
     recipient: UserModel;
     content: string;
     created_at: string;
-    state: string,
+    status: string,
     read: boolean;
 }
 
