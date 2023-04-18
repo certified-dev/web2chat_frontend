@@ -18,16 +18,29 @@ export function Conversations({active_conversation, handleConversationChange, la
     const {user} = useContext(AuthContext);
     const {conversationsUnreadCounts} = useContext(NotificationContext);
 
-    const [friendsOpen, setFriendsOpen] = useState(false)
-    const [groupsOpen, setGroupsOpen] = useState(false)
+    const [friendsOpen, setFriendsOpen] = useState(false);
+    const [groupsOpen, setGroupsOpen] = useState(false);
     const [conversations, setConversations] = useState<ConversationModel[]>([]);
     const [users, setUsers] = useState<UserModel[]>([]);
+    const [addToGroupFriends, setAddToGroupFriends] = useState<string[]>([]);
+    const [testData] = useState<any[]>([
+        {"name":"james008","dp":"/media/th-2279489504.jpeg"},
+        {"name":"james009","dp":"/media/th-2279489504.jpeg"},
+        {"name":"james003","dp":"/media/th-2279489504.jpeg"},
+        {"name":"james004","dp":"/media/th-2279489504.jpeg"},
+        {"name":"james000","dp":"/media/th-2279489504.jpeg"},
+        {"name":"james001","dp":"/media/th-2279489504.jpeg"}
+    ]);
+
 
     const btnRef = useRef<any>();
     const groupTypeRef = useRef<any>();
     const addToGroupRef = useRef<any>();
     const groupNameRef = useRef<any>();
+    const groupImageRef = useRef<any>();
     const groupUsersRef = useRef<any>();
+    const searchItemsRef = useRef<any>();
+    const groupDescRef = useRef<any>();
 
 
 
@@ -44,8 +57,8 @@ export function Conversations({active_conversation, handleConversationChange, la
 
         fetchConversations().catch(err => console.log(err));
 
-        async function fetchUsers() {
-            const res = await fetch("http://127.0.0.1:8000/api/users/all", {
+        async function fetchFriends() {
+            const res = await fetch("http://127.0.0.1:8000/api/friends/", {
                 headers: {
                     Authorization: `Token ${user?.token}`
                 }
@@ -55,7 +68,7 @@ export function Conversations({active_conversation, handleConversationChange, la
             setUsers(data);
         }
 
-        fetchUsers().catch(err => console.log(err));
+        fetchFriends().catch(err => console.log(err));
 
     }, [user]);
 
@@ -95,14 +108,26 @@ export function Conversations({active_conversation, handleConversationChange, la
     }
 
     async function createGroupConversation(room_name: string, group_type: string) {
+        let desc;
         if(group_type === "on") group_type = "private"
+        if (groupDescRef.current.value.length > 3) desc = groupDescRef.current.value
         if(room_name.length < 3) return
+        if (groupImageRef.current.files[0] === null) return
+
+        const formData = new FormData();
+        formData.append("room_name", room_name);
+        formData.append("group_image", groupImageRef.current.files[0]);
+        formData.append("group_type", group_type);
+        formData.append("desc", desc);
 
         const response = await axios.post(
             `http://127.0.0.1:8000/api/chats/add`,
-            {room_name, group_type},
+            formData,
             {
-                headers: {Authorization: `Token ${user?.token}`}
+                headers: {
+                    Authorization: `Token ${user?.token}`,
+                    "Content-Type": "multipart/form-data"
+                }
             });
 
         if (response.data.name) {
@@ -112,6 +137,8 @@ export function Conversations({active_conversation, handleConversationChange, la
             setConversations(data)
             handleConversationChange(response.data)
             groupNameRef.current.value = "";
+            groupDescRef.current.value = "";
+            groupTypeRef.current.checked = false;
         }
     }
 
@@ -126,11 +153,30 @@ export function Conversations({active_conversation, handleConversationChange, la
         }
     }
 
+    const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const {value} = event.target;
+        if (searchItemsRef.current?.classList.contains("hidden") && value.length > 0){
+            groupUsersRef.current.classList.add("rounded-bl-none", "rounded-br-none");
+            searchItemsRef.current?.classList.remove("hidden");
+        } else if (value.length < 1) {
+            groupUsersRef.current.classList.remove("rounded-bl-none", "rounded-br-none");
+            searchItemsRef.current?.classList.add("hidden");
+        }
+    }
+
+    function handleFriendClick(name: string) {
+        if (addToGroupFriends.includes(name)){
+            setAddToGroupFriends((prev) => prev.filter((p) => p !== name));
+        } else {
+            setAddToGroupFriends(prev => [...prev, name])
+        }
+    }
+
     return (
         <>
             {active_conversation.name && (
                 <div className="p-1 w-full">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between roun">
                         <button onClick={() => setFriendsOpen(true)}
                                 className="border-2 border-green-700 px-3 py-1 rounded ml-2 h-14 w-full flex justify-center text-green-700 items-center hover:bg-green-700 hover:text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -163,13 +209,29 @@ export function Conversations({active_conversation, handleConversationChange, la
                     </Modal>
                     <Modal title="Chat group" open={groupsOpen} onClose={() => setGroupsOpen(false)}>
                         <div className="p-2">
+
                             <input
                                 type="text"
-                                className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
+                                className="border rounded-lg px-3 py-2 mt-1 mb-3 text-sm w-full"
                                 id="groupName"
                                 ref={groupNameRef}
-                                placeholder="Group Name"/>
-                            <fieldset className="flex flex-col border-2 p-1">
+                                placeholder="Group Name"
+                            />
+
+                            <input
+                                type="file"
+                                ref={groupImageRef}
+                                className="block w-full min-w-0 rounded-lg border px-3 py-2 mt-1 mb-3 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] focus:border-primary file:hover:bg-blue-700 file:hover:text-white focus:shadow-te-primary focus:outline-none dark:focus:border-primary"
+                            />
+
+                            <textarea
+                                name="groupDesc"
+                                ref={groupDescRef}
+                                placeholder="About group...."
+                                className="border rounded-lg px-3 py-2 mt-1 mb-3 text-sm w-full"
+                            ></textarea>
+
+                            <fieldset className="flex flex-col border-2 p-2">
                                 <div>
                                     <input
                                         type="checkbox"
@@ -177,23 +239,49 @@ export function Conversations({active_conversation, handleConversationChange, la
                                         name="groupType"
                                         onChange={(e) => handleChecked(e)}
                                         ref={groupTypeRef}
-                                        className="m-2"
+                                        className="mr-2 mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-neutral-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-blue-600 checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-blue-600 checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary checked:focus:bg-primary checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-neutral-600 dark:after:bg-neutral-400 dark:checked:bg-blue-600 dark:checked:after:bg-blue-600 dark:focus:before:shadow-[3px_-1px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca]"
+                                        role="switch"
                                     />
-                                    <label htmlFor="group_type">public</label>
+                                    <label htmlFor="group_type" className="inline-block hover:cursor-pointer">public</label>
                                 </div>
                             </fieldset>
+
                             <div className="m-2" ref={addToGroupRef}>
                                 <div className="p-1">
-                                    <span className="m-1 inline-block whitespace-nowrap rounded-[0.27rem] px-[0.65em]  pb-[0.25em] pt-[0.35em] text-center align-baseline text-[0.75em] font-bold leading-none text-neutral-50 bg-blue-700">bosley009</span>
-                                    <span className="m-1 inline-block whitespace-nowrap rounded-[0.27rem] px-[0.65em] pb-[0.25em] pt-[0.35em] text-center align-baseline text-[0.75em] font-bold leading-none text-neutral-50 bg-blue-700">Aairah</span>
+                                    {addToGroupFriends?.map((f) => {
+                                        return (
+                                            <span className="m-1 inline-block whitespace-nowrap rounded-[0.27rem] px-[0.65em] pb-[0.25em] pt-[0.35em] text-center align-baseline text-[0.75em] font-bold leading-none text-neutral-50 bg-blue-700">{f}</span>
+                                        )
+                                    })}
                                 </div>
-                                <input type="text"
-                                       id="nameSearch"
-                                       className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
-                                       ref={groupUsersRef}
-                                       placeholder="search friends..."
+                                <input
+                                    type="search"
+                                    id="nameSearch"
+                                    className="border rounded-lg px-3 py-2 mt-1 text-sm w-full"
+                                    ref={groupUsersRef}
+                                    placeholder="search friends..."
+                                    onChange={handleSearchChange}
                                 />
+                                <div  ref={searchItemsRef} className="w-full h-[100px] overflow-y-auto border-1.5 border-gray-400 flex-col hidden">
+                                    {testData.map((d: any, idx: number) => {
+                                        return (
+                                            <div key={idx} className="w-full p-2 flex border-1 border-gray-200 hover:bg-gray-200 hover:cursor-pointer" onClick={() => handleFriendClick(d.name)}>
+
+                                                <img src={"http://localhost:8000" + d.dp}
+                                                     className="rounded-full mr-3" width="30" height="30" alt=""/>
+                                                <span className="font-semibold">{d.name}</span>
+                                                {addToGroupFriends.includes(d.name) && (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-green-700 ml-auto mr-2">
+                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+                                                    </svg>
+
+                                                )}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </div>
+
                             <div className="flex mt-2 justify-end">
                                 <button
                                     type="button" ref={btnRef}
@@ -242,8 +330,8 @@ export function Conversations({active_conversation, handleConversationChange, la
                                             >{
                                                 conversation.type === "group" && (
                                                 <span className="text-xs font-bold">
-                                                    {lastMessages[idx]?.message?.sender?.username === user?.username ? "You " : lastMessages[idx]?.message?.sender?.username}
-
+                                                    {lastMessages[idx]?.message?.sender?.username === user?.username ? "You" : lastMessages[idx]?.message?.sender?.username}
+                                                    <span> </span>
                                                 </span>
                                             )
                                             }

@@ -44,12 +44,12 @@ export function Chat(
             queryParams: {
                 token: user ? user.token : "",
             },
-            onOpen: () => {
-                console.log("Connected to Chat!");
-            },
-            onClose: () => {
-                console.log("Disconnected from Chat!");
-            },
+            // onOpen: () => {
+            //     console.log("Connected to Chat!");
+            // },
+            // onClose: () => {
+            //     console.log("Disconnected from Chat!");
+            // },
             onMessage: (e) => {
                 const data = JSON.parse(e.data);
                 switch (data.type) {
@@ -281,9 +281,10 @@ export function Chat(
             <div className="flex w-full items-center justify-between border border-gray-200 p-3">
                 <textarea
                     placeholder="Message"
-                    className="block w-full rounded-full bg-gray-100 py-2 outline-none focus:text-gray-700"
+                    className="block w-full rounded-[1rem] bg-gray-100 py-2 outline-none focus:text-gray-700"
                     name="message"
                     value={message}
+                    rows={1}
                     onChange={handleChangeMessage}
                     ref={inputReference}
                     maxLength={511}

@@ -7,9 +7,12 @@ import {Navbar} from "./components/Navbar";
 import {AuthContextProvider} from "./components/contexts/AuthContext";
 import {NotificationContextProvider} from "./components/contexts/NotificationContext";
 import {ProtectedRoute} from "./components/ProtectedRoute";
-import Feeds from "./pages/Feeds";
 import {SignUp} from "./components/SignUp";
+
+import Feeds from "./pages/Feeds";
 import Notifications from "./pages/Notifications";
+import Discovery from "./pages/Discovery";
+import UserProfile from "./pages/UserProfile";
 
 export default function App() {
     return (
@@ -44,6 +47,18 @@ export default function App() {
                         </ProtectedRoute>
                     }/>
 
+                    <Route path="profile" element={
+                        <ProtectedRoute>
+                            <UserProfile />
+                        </ProtectedRoute>
+                    }/>
+
+                    <Route path="discover" element={
+                        <ProtectedRoute>
+                            <Discovery />
+                        </ProtectedRoute>
+                    }/>
+
                 </Route>
 
                 <Route path="login" element={
@@ -51,6 +66,7 @@ export default function App() {
                        <Login />
                     </ AuthContextProvider>
                 }/>
+
                 <Route path="signup" element={
                     <AuthContextProvider>
                         <SignUp />
