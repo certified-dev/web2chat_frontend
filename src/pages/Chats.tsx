@@ -1,6 +1,4 @@
-// @ts-ignore
 import {Chat} from "../components/Chat";
-// @ts-ignore
 import {Conversations} from "../components/Conversations";
 import React, {useContext, useEffect, useState} from "react";
 
@@ -8,8 +6,9 @@ import {ConversationModel} from "../components/models/Conversation";
 import {LastMessageModel} from "../components/models/Message";
 import {NotificationContext} from "../components/contexts/NotificationContext";
 import {AuthContext} from "../components/contexts/AuthContext";
-import Modal from "../components/Modal";
 import {Link} from "react-router-dom";
+
+import Modal from "../components/Modal";
 
 export default function Chats() {
 
@@ -20,12 +19,12 @@ export default function Chats() {
     const stored_conversation = JSON.parse(localStorage.getItem("conversation")!);
 
     const [activeConversation, setActiveConversation] = useState<ConversationModel>(stored_conversation || user?.last_conversation || {});
-
     const [findFriendsOpen, setFindFriendsOpen] = useState(false);
 
     useEffect(()=>{
         localStorage.setItem("conversation", JSON.stringify(activeConversation))
-    },[activeConversation])
+    },[activeConversation]);
+
 
     function handleConversationChange(conversation: ConversationModel) {
         setActiveConversation(conversation);

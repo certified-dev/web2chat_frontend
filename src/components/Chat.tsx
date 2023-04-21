@@ -226,15 +226,17 @@ export function Chat(
                     <div className="p-3 bg-gray-200">
                         <div className="flex flex-row">
                             <img src={conversation.type === "personal" ? `http://localhost:8000${conversation.other_user?.display_photo}` : `${conversation.group_image}`}
-                                 className="rounded-full mr-2" width="50" height="50" alt=""/>
+                                 className="rounded-full mr-2" width="52" height="50" alt=""/>
                             <div className="flex flex-col">
                                 <h3 className="text-2xl font-semibold text-gray-900 flex">
                                     {conversation.type === "personal" ? conversation.other_user?.username : conversation.name}
-                                    {conversation.group_type === "private" && (<span className="ml-2 mt-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                                        </svg>
-                                    </span>)}
+                                    {conversation.group_type === "private" && (
+                                        <span className="ml-2 mt-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                                            </svg>
+                                        </span>
+                                    )}
                                 </h3>
                                 {conversation.type === "personal" && ( otherTyping ? <span className="whitespace-nowrap rounded-full px-2 py-1 text-center align-baseline text-sm font-semibold leading-none text-white bg-blue-600 w-fit">typing...</span> :
                                         <span
@@ -286,11 +288,11 @@ export function Chat(
                     value={message}
                     rows={1}
                     onChange={handleChangeMessage}
-                    ref={inputReference}
+                    ref={inputReference}px-3 py-2
                     maxLength={511}
                 ></textarea>
-                <button className="ml-3 bg-gray-300 px-3 py-2" onClick={handleSubmit}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                <button className="ml-3 px-2.5 py-2" onClick={handleSubmit}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6 hover:text-blue-600">
                         <path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
                     </svg>
                 </button>
